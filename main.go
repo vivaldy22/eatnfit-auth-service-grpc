@@ -1,9 +1,10 @@
 package main
 
-import "os"
+import "github.com/vivaldy22/eatnfit-auth-service/config"
 
 func main() {
-	args := os.Args
-
-	if len(args != 3)
+	db, _ := config.InitDB()
+	router := config.CreateRouter()
+	config.InitRouters(db, router)
+	config.RunServer(router)
 }
