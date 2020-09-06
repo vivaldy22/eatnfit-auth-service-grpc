@@ -1,7 +1,7 @@
 package queries
 
 const (
-	GET_ALL_LEVEL = `SELECT * FROM level WHERE level_status = 1`
+	GET_ALL_LEVEL = `SELECT * FROM tb_level WHERE level_status = 1`
 	GET_BY_ID_LEVEL = ``
 	CREATE_LEVEL = ``
 	UPDATE_LEVEL = ``
