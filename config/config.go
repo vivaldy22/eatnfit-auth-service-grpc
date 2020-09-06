@@ -35,8 +35,8 @@ func InitDB() (*sql.DB, error) {
 }
 
 func RunServer(db *sql.DB) {
-	host := viper.ViperGetEnv("GRPC_HOST", "localhost")
-	port := viper.ViperGetEnv("GRPC_PORT", "1010")
+	host := viper.ViperGetEnv("GRPC_AUTH_HOST", "localhost")
+	port := viper.ViperGetEnv("GRPC_AUTH_PORT", "1010")
 
 	listener, err := net.Listen("tcp", host+":"+port)
 	if err != nil {
@@ -48,8 +48,8 @@ func RunServer(db *sql.DB) {
 	authservice.RegisterLevelCRUDServer(srv, service)
 	reflection.Register(srv)
 
+	log.Printf("Starting GRPC Eat N' Fit Auth Server at %v port: %v\n", host, port)
 	if err = srv.Serve(listener); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Starting GRPC Eat N' Fit Auth Server at %v port: %v\n", host, port)
 }
