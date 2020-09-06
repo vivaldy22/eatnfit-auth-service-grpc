@@ -3,7 +3,13 @@ package config
 import (
 	"database/sql"
 	"fmt"
+	"github.com/vivaldy22/eatnfit-auth-service/master/level"
+	authservice "github.com/vivaldy22/eatnfit-auth-service/proto"
 	"github.com/vivaldy22/eatnfit-auth-service/tools/viper"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+	"log"
+	"net"
 )
 
 func InitDB() (*sql.DB, error) {
@@ -26,4 +32,24 @@ func InitDB() (*sql.DB, error) {
 	}
 
 	return dbConn, nil
+}
+
+func RunServer(db *sql.DB) {
+	host := viper.ViperGetEnv("GRPC_HOST", "localhost")
+	port := viper.ViperGetEnv("GRPC_PORT", "1010")
+
+	listener, err := net.Listen("tcp", host+":"+port)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	srv := grpc.NewServer()
+	service := level.NewService(db)
+	authservice.RegisterLevelCRUDServer(srv, service)
+	reflection.Register(srv)
+
+	if err = srv.Serve(listener); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Starting GRPC Eat N' Fit Auth Server at %v port: %v\n", host, port)
 }
