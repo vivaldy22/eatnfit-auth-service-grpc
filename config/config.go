@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/vivaldy22/eatnfit-auth-service/master/level"
 	"github.com/vivaldy22/eatnfit-auth-service/master/token"
+	"github.com/vivaldy22/eatnfit-auth-service/master/user"
 	authservice "github.com/vivaldy22/eatnfit-auth-service/proto"
 	"github.com/vivaldy22/eatnfit-auth-service/tools/viper"
 	"google.golang.org/grpc"
@@ -46,10 +47,15 @@ func RunServer(db *sql.DB) {
 	}
 
 	srv := grpc.NewServer()
-	levelService := level.NewService(db)
 	tokenService := token.NewService()
-	authservice.RegisterLevelCRUDServer(srv, levelService)
 	authservice.RegisterJWTTokenServer(srv, tokenService)
+
+	levelService := level.NewService(db)
+	authservice.RegisterLevelCRUDServer(srv, levelService)
+
+	userService := user.NewService(db)
+	authservice.RegisterUserCRUDServer(srv, userService)
+
 	reflection.Register(srv)
 
 	log.Printf("Starting GRPC Eat N' Fit Auth Server at %v port: %v\n", host, port)
