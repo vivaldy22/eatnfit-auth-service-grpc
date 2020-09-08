@@ -51,56 +51,55 @@ func (s *Service) GetByID(ctx context.Context, id *authservice.ID) (*authservice
 	return level, nil
 }
 
-func (s *Service) Create(ctx context.Context, level *authservice.Level) (*empty.Empty, error) {
+func (s *Service) Create(ctx context.Context, level *authservice.Level) (*authservice.Level, error) {
 	tx, err := s.db.Begin()
 
 	if err != nil {
-		return new(empty.Empty), err
+		return nil, err
 	}
 
 	stmt, err := tx.Prepare(queries.CREATE_LEVEL)
 
 	if err != nil {
-		return new(empty.Empty), err
+		return nil, err
 	}
 
 	res, err := stmt.Exec(level.LevelName)
 
 	if err != nil {
-		return new(empty.Empty), tx.Rollback()
+		return nil, tx.Rollback()
 	}
 
 	lastInsertID, err := res.LastInsertId()
 
 	if err != nil {
-		return new(empty.Empty), tx.Rollback()
+		return nil, tx.Rollback()
 	}
 
-	level.LevelId = int64(lastInsertID)
+	level.LevelId = strconv.Itoa(int(lastInsertID))
 	stmt.Close()
-	return new(empty.Empty), tx.Commit()
+	return level, tx.Commit()
 }
 
-func (s *Service) Update(ctx context.Context, request *authservice.LevelUpdateRequest) (*empty.Empty, error) {
+func (s *Service) Update(ctx context.Context, request *authservice.LevelUpdateRequest) (*authservice.Level, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
-		return new(empty.Empty), err
+		return nil, err
 	}
 
 	stmt, err := tx.Prepare(queries.UPDATE_LEVEL)
 	if err != nil {
-		return new(empty.Empty), err
+		return nil, err
 	}
 
 	_, err = stmt.Exec(request.Level.LevelName, request.Id.Id)
 	if err != nil {
-		return new(empty.Empty), tx.Rollback()
+		return nil, tx.Rollback()
 	}
 
 	stmt.Close()
-	convIdToNum, _ := strconv.Atoi(request.Id.Id)
-	request.Level.LevelId = int64(convIdToNum)
-	return new(empty.Empty), tx.Commit()
+	request.Level.LevelId = request.Id.Id
+	return request.Level, tx.Commit()
 }
 
 func (s *Service) Delete(ctx context.Context, id *authservice.ID) (*empty.Empty, error) {

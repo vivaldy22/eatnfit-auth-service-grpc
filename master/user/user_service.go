@@ -17,8 +17,8 @@ func NewService(db *sql.DB) authservice.UserCRUDServer {
 	return &Service{db}
 }
 
-func (s *Service) GetAll(ctx context.Context, e *empty.Empty) (*authservice.UserListResponse, error) {
-	var users = new(authservice.UserListResponse)
+func (s *Service) GetAll(ctx context.Context, e *empty.Empty) (*authservice.UserList, error) {
+	var users = new(authservice.UserList)
 	rows, err := s.db.Query(queries.GET_ALL_USER)
 
 	if err != nil {
@@ -27,7 +27,7 @@ func (s *Service) GetAll(ctx context.Context, e *empty.Empty) (*authservice.User
 	defer rows.Close()
 
 	for rows.Next() {
-		var each = new(authservice.UserResponse)
+		var each = new(authservice.User)
 		if err := rows.Scan(&each.UserId, &each.UserEmail, &each.UserPassword, &each.UserFName, &each.UserLName,
 			&each.UserGender, &each.UserPhoto, &each.UserBalance, &each.UserLevel, &each.UserStatus); err != nil {
 			return nil, err
@@ -65,17 +65,17 @@ func (s *Service) GetByEmail(ctx context.Context, email *authservice.Email) (*au
 	return user, nil
 }
 
-func (s *Service) Create(ctx context.Context, user *authservice.User) (*empty.Empty, error) {
+func (s *Service) Create(ctx context.Context, user *authservice.User) (*authservice.User, error) {
 	tx, err := s.db.Begin()
 
 	if err != nil {
-		return new(empty.Empty), err
+		return nil, err
 	}
 
 	stmt, err := tx.Prepare(queries.CREATE_USER)
 
 	if err != nil {
-		return new(empty.Empty), err
+		return nil, err
 	}
 
 	id := uuid.New().String()
@@ -83,34 +83,34 @@ func (s *Service) Create(ctx context.Context, user *authservice.User) (*empty.Em
 		user.UserGender, user.UserPhoto, user.UserBalance, user.UserLevel)
 
 	if err != nil {
-		return new(empty.Empty), tx.Rollback()
+		return nil, tx.Rollback()
 	}
 
 	user.UserId = id
 	stmt.Close()
-	return new(empty.Empty), tx.Commit()
+	return user, tx.Commit()
 }
 
-func (s *Service) Update(ctx context.Context, request *authservice.UserUpdateRequest) (*empty.Empty, error) {
+func (s *Service) Update(ctx context.Context, request *authservice.UserUpdateRequest) (*authservice.User, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
-		return new(empty.Empty), err
+		return nil, err
 	}
 
 	stmt, err := tx.Prepare(queries.UPDATE_USER)
 	if err != nil {
-		return new(empty.Empty), err
+		return nil, err
 	}
 
 	_, err = stmt.Exec(request.User.UserEmail, request.User.UserPassword, request.User.UserFName, request.User.UserLName,
 		request.User.UserGender, request.User.UserPhoto, request.User.UserBalance, request.User.UserLevel, request.Id.Id)
 	if err != nil {
-		return new(empty.Empty), tx.Rollback()
+		return nil, tx.Rollback()
 	}
 
 	stmt.Close()
 	request.User.UserId = request.Id.Id
-	return new(empty.Empty), tx.Commit()
+	return request.User, tx.Commit()
 }
 
 func (s *Service) Delete(ctx context.Context, id *authservice.ID) (*empty.Empty, error) {
