@@ -124,7 +124,7 @@ func (s *Service) Delete(ctx context.Context, id *authservice.ID) (*empty.Empty,
 		return new(empty.Empty), err
 	}
 
-	_, err = stmt.Exec(id)
+	_, err = stmt.Exec(id.Id)
 	if err != nil {
 		return new(empty.Empty), tx.Rollback()
 	}
