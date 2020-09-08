@@ -1,3 +1,5 @@
+# Use this file for db
+
 CREATE DATABASE db_eatnfit_auth;
 USE db_eatnfit_auth;
 

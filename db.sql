@@ -1,3 +1,5 @@
+# Raw DB, not done yet, don't use this
+
 CREATE DATABASE db_eatnfit_auth;
 USE db_eatnfit_auth;
 
