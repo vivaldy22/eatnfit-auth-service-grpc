@@ -29,7 +29,7 @@ func (s *Service) GetAll(ctx context.Context, e *empty.Empty) (*authservice.User
 	for rows.Next() {
 		var each = new(authservice.User)
 		if err := rows.Scan(&each.UserId, &each.UserEmail, &each.UserPassword, &each.UserFName, &each.UserLName,
-			&each.UserGender, &each.UserPhoto, &each.UserBalance, &each.UserLevel, &each.UserStatus); err != nil {
+			&each.UserGender, &each.UserBalance, &each.UserLevel, &each.UserStatus); err != nil {
 			return nil, err
 		}
 		users.List = append(users.List, each)
@@ -46,7 +46,7 @@ func (s *Service) GetByID(ctx context.Context, id *authservice.ID) (*authservice
 	row := s.db.QueryRow(queries.GET_BY_ID_USER, id.Id)
 
 	err := row.Scan(&user.UserId, &user.UserEmail, &user.UserPassword, &user.UserFName, &user.UserLName,
-		&user.UserGender, &user.UserPhoto, &user.UserBalance, &user.UserLevel, &user.UserStatus)
+		&user.UserGender, &user.UserBalance, &user.UserLevel, &user.UserStatus)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (s *Service) GetByEmail(ctx context.Context, email *authservice.Email) (*au
 	row := s.db.QueryRow(queries.GET_BY_EMAIL_USER, email.Email)
 
 	err := row.Scan(&user.UserId, &user.UserEmail, &user.UserPassword, &user.UserFName, &user.UserLName,
-		&user.UserGender, &user.UserPhoto, &user.UserBalance, &user.UserLevel, &user.UserStatus)
+		&user.UserGender, &user.UserBalance, &user.UserLevel, &user.UserStatus)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (s *Service) Create(ctx context.Context, user *authservice.User) (*authserv
 
 	id := uuid.New().String()
 	_, err = stmt.Exec(id, user.UserEmail, user.UserPassword, user.UserFName, user.UserLName,
-		user.UserGender, user.UserPhoto, user.UserBalance, user.UserLevel)
+		user.UserGender, user.UserLevel)
 
 	if err != nil {
 		return nil, tx.Rollback()
@@ -103,7 +103,7 @@ func (s *Service) Update(ctx context.Context, request *authservice.UserUpdateReq
 	}
 
 	_, err = stmt.Exec(request.User.UserEmail, request.User.UserPassword, request.User.UserFName, request.User.UserLName,
-		request.User.UserGender, request.User.UserPhoto, request.User.UserBalance, request.User.UserLevel, request.Id.Id)
+		request.User.UserGender, request.User.UserBalance, request.User.UserLevel, request.Id.Id)
 	if err != nil {
 		return nil, tx.Rollback()
 	}
