@@ -81,7 +81,6 @@ func (s *Service) Create(ctx context.Context, user *authservice.User) (*authserv
 	id := uuid.New().String()
 	_, err = stmt.Exec(id, user.UserEmail, user.UserPassword, user.UserFName, user.UserLName,
 		user.UserGender, user.UserLevel)
-
 	if err != nil {
 		return nil, tx.Rollback()
 	}
