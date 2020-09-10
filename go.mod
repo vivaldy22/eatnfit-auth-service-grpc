@@ -1,4 +1,4 @@
-module github.com/vivaldy22/eatnfit-auth-service
+module github.com/vivaldy22/eatnfit-auth-service-grpc
 
 go 1.14
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"github.com/golang/protobuf/ptypes/empty"
-	authproto "github.com/vivaldy22/eatnfit-auth-service/proto"
-	"github.com/vivaldy22/eatnfit-auth-service/tools/queries"
+	authproto "github.com/vivaldy22/eatnfit-auth-service-grpc/proto"
+	"github.com/vivaldy22/eatnfit-auth-service-grpc/tools/queries"
 	"strconv"
 )
 

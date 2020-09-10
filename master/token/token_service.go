@@ -2,8 +2,8 @@ package token
 
 import (
 	"context"
-	authproto "github.com/vivaldy22/eatnfit-auth-service/proto"
-	"github.com/vivaldy22/eatnfit-auth-service/tools/jwttoken"
+	authproto "github.com/vivaldy22/eatnfit-auth-service-grpc/proto"
+	"github.com/vivaldy22/eatnfit-auth-service-grpc/tools/jwttoken"
 )
 
 const (
