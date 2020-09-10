@@ -2,7 +2,7 @@ package token
 
 import (
 	"context"
-	authservice "github.com/vivaldy22/eatnfit-auth-service/proto"
+	authproto "github.com/vivaldy22/eatnfit-auth-service/proto"
 	"github.com/vivaldy22/eatnfit-auth-service/tools/jwttoken"
 )
 
@@ -12,14 +12,14 @@ const (
 
 type Service struct {}
 
-func (s Service) GenerateToken(ctx context.Context, credentials *authservice.LoginCredentials) (*authservice.Token, error) {
+func (s Service) GenerateToken(ctx context.Context, credentials *authproto.LoginCredentials) (*authproto.Token, error) {
 	token, err := jwttoken.JwtEncoder(credentials.UserEmail, customKey)
 	if err != nil {
 		return nil, err
 	}
-	return &authservice.Token{Token: token}, err
+	return &authproto.Token{Token: token}, err
 }
 
-func NewService() authservice.JWTTokenServer {
+func NewService() authproto.JWTTokenServer {
 	return &Service{}
 }

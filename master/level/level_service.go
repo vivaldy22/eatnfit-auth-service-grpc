@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/golang/protobuf/ptypes/empty"
-	authservice "github.com/vivaldy22/eatnfit-auth-service/proto"
+	authproto "github.com/vivaldy22/eatnfit-auth-service/proto"
 	"github.com/vivaldy22/eatnfit-auth-service/tools/queries"
 	"strconv"
 )
@@ -13,12 +13,12 @@ type Service struct{
 	db *sql.DB
 }
 
-func NewService(db *sql.DB) authservice.LevelCRUDServer {
+func NewService(db *sql.DB) authproto.LevelCRUDServer {
 	return &Service{db}
 }
 
-func (s *Service) GetAll(ctx context.Context, empty *empty.Empty) (*authservice.LevelList, error) {
-	var levels = new(authservice.LevelList)
+func (s *Service) GetAll(ctx context.Context, empty *empty.Empty) (*authproto.LevelList, error) {
+	var levels = new(authproto.LevelList)
 	rows, err := s.db.Query(queries.GET_ALL_LEVEL)
 
 	if err != nil {
@@ -27,7 +27,7 @@ func (s *Service) GetAll(ctx context.Context, empty *empty.Empty) (*authservice.
 	defer rows.Close()
 
 	for rows.Next() {
-		var each = new(authservice.Level)
+		var each = new(authproto.Level)
 		if err := rows.Scan(&each.LevelId, &each.LevelName, &each.LevelStatus); err != nil {
 			return nil, err
 		}
@@ -40,8 +40,8 @@ func (s *Service) GetAll(ctx context.Context, empty *empty.Empty) (*authservice.
 	return levels, nil
 }
 
-func (s *Service) GetByID(ctx context.Context, id *authservice.ID) (*authservice.Level, error) {
-	var level = new(authservice.Level)
+func (s *Service) GetByID(ctx context.Context, id *authproto.ID) (*authproto.Level, error) {
+	var level = new(authproto.Level)
 	row := s.db.QueryRow(queries.GET_BY_ID_LEVEL, id.Id)
 
 	err := row.Scan(&level.LevelId, &level.LevelName, &level.LevelStatus)
@@ -51,7 +51,7 @@ func (s *Service) GetByID(ctx context.Context, id *authservice.ID) (*authservice
 	return level, nil
 }
 
-func (s *Service) Create(ctx context.Context, level *authservice.Level) (*authservice.Level, error) {
+func (s *Service) Create(ctx context.Context, level *authproto.Level) (*authproto.Level, error) {
 	tx, err := s.db.Begin()
 
 	if err != nil {
@@ -81,7 +81,7 @@ func (s *Service) Create(ctx context.Context, level *authservice.Level) (*authse
 	return level, tx.Commit()
 }
 
-func (s *Service) Update(ctx context.Context, request *authservice.LevelUpdateRequest) (*authservice.Level, error) {
+func (s *Service) Update(ctx context.Context, request *authproto.LevelUpdateRequest) (*authproto.Level, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return nil, err
@@ -102,7 +102,7 @@ func (s *Service) Update(ctx context.Context, request *authservice.LevelUpdateRe
 	return request.Level, tx.Commit()
 }
 
-func (s *Service) Delete(ctx context.Context, id *authservice.ID) (*empty.Empty, error) {
+func (s *Service) Delete(ctx context.Context, id *authproto.ID) (*empty.Empty, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return new(empty.Empty), err

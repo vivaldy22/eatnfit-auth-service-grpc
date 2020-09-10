@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/uuid"
-	authservice "github.com/vivaldy22/eatnfit-auth-service/proto"
+	authproto "github.com/vivaldy22/eatnfit-auth-service/proto"
 	"github.com/vivaldy22/eatnfit-auth-service/tools/queries"
 )
 
@@ -13,12 +13,12 @@ type Service struct{
 	db *sql.DB
 }
 
-func NewService(db *sql.DB) authservice.UserCRUDServer {
+func NewService(db *sql.DB) authproto.UserCRUDServer {
 	return &Service{db}
 }
 
-func (s *Service) GetAll(ctx context.Context, e *empty.Empty) (*authservice.UserList, error) {
-	var users = new(authservice.UserList)
+func (s *Service) GetAll(ctx context.Context, e *empty.Empty) (*authproto.UserList, error) {
+	var users = new(authproto.UserList)
 	rows, err := s.db.Query(queries.GET_ALL_USER)
 
 	if err != nil {
@@ -27,7 +27,7 @@ func (s *Service) GetAll(ctx context.Context, e *empty.Empty) (*authservice.User
 	defer rows.Close()
 
 	for rows.Next() {
-		var each = new(authservice.User)
+		var each = new(authproto.User)
 		if err := rows.Scan(&each.UserId, &each.UserEmail, &each.UserPassword, &each.UserFName, &each.UserLName,
 			&each.UserGender, &each.UserBalance, &each.UserLevel, &each.UserStatus); err != nil {
 			return nil, err
@@ -41,8 +41,8 @@ func (s *Service) GetAll(ctx context.Context, e *empty.Empty) (*authservice.User
 	return users, nil
 }
 
-func (s *Service) GetByID(ctx context.Context, id *authservice.ID) (*authservice.User, error) {
-	var user = new(authservice.User)
+func (s *Service) GetByID(ctx context.Context, id *authproto.ID) (*authproto.User, error) {
+	var user = new(authproto.User)
 	row := s.db.QueryRow(queries.GET_BY_ID_USER, id.Id)
 
 	err := row.Scan(&user.UserId, &user.UserEmail, &user.UserPassword, &user.UserFName, &user.UserLName,
@@ -53,8 +53,8 @@ func (s *Service) GetByID(ctx context.Context, id *authservice.ID) (*authservice
 	return user, nil
 }
 
-func (s *Service) GetByEmail(ctx context.Context, email *authservice.Email) (*authservice.User, error) {
-	var user = new(authservice.User)
+func (s *Service) GetByEmail(ctx context.Context, email *authproto.Email) (*authproto.User, error) {
+	var user = new(authproto.User)
 	row := s.db.QueryRow(queries.GET_BY_EMAIL_USER, email.Email)
 
 	err := row.Scan(&user.UserId, &user.UserEmail, &user.UserPassword, &user.UserFName, &user.UserLName,
@@ -65,7 +65,7 @@ func (s *Service) GetByEmail(ctx context.Context, email *authservice.Email) (*au
 	return user, nil
 }
 
-func (s *Service) Create(ctx context.Context, user *authservice.User) (*authservice.User, error) {
+func (s *Service) Create(ctx context.Context, user *authproto.User) (*authproto.User, error) {
 	tx, err := s.db.Begin()
 
 	if err != nil {
@@ -90,7 +90,32 @@ func (s *Service) Create(ctx context.Context, user *authservice.User) (*authserv
 	return user, tx.Commit()
 }
 
-func (s *Service) Update(ctx context.Context, request *authservice.UserUpdateRequest) (*authservice.User, error) {
+func (s *Service) CreateByAdmin(ctx context.Context, user *authproto.User) (*authproto.User, error) {
+	tx, err := s.db.Begin()
+
+	if err != nil {
+		return nil, err
+	}
+
+	stmt, err := tx.Prepare(queries.CREATE_USER_BY_ADMIN)
+
+	if err != nil {
+		return nil, err
+	}
+
+	id := uuid.New().String()
+	_, err = stmt.Exec(id, user.UserEmail, user.UserPassword, user.UserFName, user.UserLName,
+		user.UserGender, user.UserBalance, user.UserLevel)
+	if err != nil {
+		return nil, tx.Rollback()
+	}
+
+	user.UserId = id
+	stmt.Close()
+	return user, tx.Commit()
+}
+
+func (s *Service) Update(ctx context.Context, request *authproto.UserUpdateRequest) (*authproto.User, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return nil, err
@@ -112,7 +137,7 @@ func (s *Service) Update(ctx context.Context, request *authservice.UserUpdateReq
 	return request.User, tx.Commit()
 }
 
-func (s *Service) Delete(ctx context.Context, id *authservice.ID) (*empty.Empty, error) {
+func (s *Service) Delete(ctx context.Context, id *authproto.ID) (*empty.Empty, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return new(empty.Empty), err

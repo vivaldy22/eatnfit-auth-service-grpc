@@ -15,6 +15,7 @@ const (
 	GET_BY_ID_USER = `SELECT * FROM tb_user WHERE user_id = ? AND user_status = 1`
 	GET_BY_EMAIL_USER = `SELECT * FROM tb_user WHERE user_email = ? AND user_status = 1`
 	CREATE_USER = `INSERT INTO tb_user VALUES (?, ?, ?, ?, ?, ?, 0, ?, 1)`
+	CREATE_USER_BY_ADMIN = `INSERT INTO tb_user VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`
 	UPDATE_USER = `UPDATE tb_user
 					SET user_email = ?,
 						user_password = ?,
