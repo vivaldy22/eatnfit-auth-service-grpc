@@ -3,10 +3,12 @@ package user
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/uuid"
 	authproto "github.com/vivaldy22/eatnfit-auth-service-grpc/proto"
 	"github.com/vivaldy22/eatnfit-auth-service-grpc/tools/queries"
+	"strconv"
 )
 
 type Service struct{
@@ -17,9 +19,13 @@ func NewService(db *sql.DB) authproto.UserCRUDServer {
 	return &Service{db}
 }
 
-func (s *Service) GetAll(ctx context.Context, e *empty.Empty) (*authproto.UserList, error) {
+func (s *Service) GetAll(ctx context.Context, pagination *authproto.Pagination) (*authproto.UserList, error) {
 	var users = new(authproto.UserList)
-	rows, err := s.db.Query(queries.GET_ALL_USER)
+	page, _ := strconv.Atoi(pagination.Page)
+	limit, _ := strconv.Atoi(pagination.Limit)
+	offset := (page * limit) - limit
+	query := fmt.Sprintf(queries.GET_ALL_USER, offset, limit)
+	rows, err := s.db.Query(query, "%"+pagination.Keyword+"%", "%"+pagination.Keyword+"%")
 
 	if err != nil {
 		return nil, err
@@ -39,6 +45,16 @@ func (s *Service) GetAll(ctx context.Context, e *empty.Empty) (*authproto.UserLi
 		return nil, err
 	}
 	return users, nil
+}
+
+func (s *Service) GetTotal(ctx context.Context, e *empty.Empty) (*authproto.Total, error) {
+	var total int
+	row := s.db.QueryRow(queries.GET_TOTAL_USER)
+	err := row.Scan(&total)
+	if err != nil {
+		return nil, err
+	}
+	return &authproto.Total{TotalData: strconv.Itoa(total)}, nil
 }
 
 func (s *Service) GetByID(ctx context.Context, id *authproto.ID) (*authproto.User, error) {
