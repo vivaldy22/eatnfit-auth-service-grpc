@@ -23,7 +23,6 @@ const (
 	CREATE_USER_BY_ADMIN = `INSERT INTO tb_user VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`
 	UPDATE_USER = `UPDATE tb_user
 					SET user_email = ?,
-						user_password = ?,
 						user_f_name = ?,
 						user_l_name = ?,
 						user_gender = ?,

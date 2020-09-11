@@ -8,12 +8,11 @@ import (
 )
 
 const (
-	hmacSampleSecret = "secret"
 	expiredPeriod    = 30
 	formatDateLayout = "2006-01-02 15:04:05"
 )
 
-func JwtEncoder(userName, customKey string) (string, error) {
+func JwtEncoder(userName, customKey, hmacSampleSecret string) (string, error) {
 	expiredDate := time.Now().Add(time.Second * expiredPeriod)
 	claims := jwt.MapClaims{
 		"name":      userName,
@@ -30,7 +29,7 @@ func JwtEncoder(userName, customKey string) (string, error) {
 	return tokenString, nil
 }
 
-func JwtDecoder(tokenString string) (jwt.MapClaims, error) {
+func JwtDecoder(tokenString, hmacSampleSecret string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

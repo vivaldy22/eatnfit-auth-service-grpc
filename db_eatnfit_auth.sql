@@ -28,19 +28,6 @@ CREATE TABLE tb_level (
     level_status INT NOT NULL
 );
 
-# CREATE TABLE tb_level_access (
-#     level_access_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-#     level_id INT NOT NULL,
-#     access_menu_id INT NOT NULL,
-#     level_access_status INT NOT NULL
-# );
-#
-# CREATE TABLE tb_access_menu (
-#     access_menu_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-#     access_menu_name VARCHAR(50) NOT NULL,
-#     access_menu_status INT NOT NULL
-# );
-
 INSERT INTO tb_gender VALUES (NULL, 'Laki-laki', 1),
                              (NULL, 'Perempuan', 1);
 

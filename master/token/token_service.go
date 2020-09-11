@@ -12,8 +12,8 @@ const (
 
 type Service struct {}
 
-func (s Service) GenerateToken(ctx context.Context, credentials *authproto.LoginCredentials) (*authproto.Token, error) {
-	token, err := jwttoken.JwtEncoder(credentials.UserEmail, customKey)
+func (s Service) GenerateToken(ctx context.Context, credentials *authproto.TokenCredentials) (*authproto.Token, error) {
+	token, err := jwttoken.JwtEncoder(credentials.UserEmail, customKey, credentials.HmacSecret)
 	if err != nil {
 		return nil, err
 	}

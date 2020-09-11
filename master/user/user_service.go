@@ -142,7 +142,7 @@ func (s *Service) Update(ctx context.Context, request *authproto.UserUpdateReque
 		return nil, err
 	}
 
-	_, err = stmt.Exec(request.User.UserEmail, request.User.UserPassword, request.User.UserFName, request.User.UserLName,
+	_, err = stmt.Exec(request.User.UserEmail, request.User.UserFName, request.User.UserLName,
 		request.User.UserGender, request.User.UserBalance, request.User.UserLevel, request.Id.Id)
 	if err != nil {
 		return nil, tx.Rollback()
