@@ -16,20 +16,11 @@ CREATE TABLE tb_user (
      user_status INT NOT NULL
 );
 
-CREATE TABLE tb_gender (
-    gender_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    gender_name VARCHAR(50) NOT NULL,
-    gender_status INT NOT NULL
-);
-
 CREATE TABLE tb_level (
     level_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     level_name VARCHAR(50) NOT NULL,
     level_status INT NOT NULL
 );
-
-INSERT INTO tb_gender VALUES (NULL, 'Laki-laki', 1),
-                             (NULL, 'Perempuan', 1);
 
 INSERT INTO tb_level VALUES (NULL, 'Admin', 1),
                             (NULL, 'User', 1),
