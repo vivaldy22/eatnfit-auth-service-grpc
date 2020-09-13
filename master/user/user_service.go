@@ -7,8 +7,10 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/uuid"
 	authproto "github.com/vivaldy22/eatnfit-auth-service-grpc/proto"
+	"github.com/vivaldy22/eatnfit-auth-service-grpc/tools/consts"
 	"github.com/vivaldy22/eatnfit-auth-service-grpc/tools/queries"
 	"strconv"
+	"time"
 )
 
 type Service struct{
@@ -17,6 +19,66 @@ type Service struct{
 
 func NewService(db *sql.DB) authproto.UserCRUDServer {
 	return &Service{db}
+}
+
+func (s *Service) GetBalanceHistory(ctx context.Context, id *authproto.ID) (*authproto.BalanceHistoryList, error) {
+	var histories = new(authproto.BalanceHistoryList)
+
+	rows, err := s.db.Query(queries.GET_TOPUP_HISTORY_BY_USER_ID, id.Id)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var each = new(authproto.BalanceHistory)
+		if err := rows.Scan(&each.BalhistoryId, &each.BalhistoryDate, &each.UserId, &each.Amount, &each.BalhistoryType);
+		err != nil {
+			return nil, err
+		}
+		histories.List = append(histories.List, each)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return histories, nil
+}
+
+func (s *Service) TopUp(ctx context.Context, input *authproto.TopUpInput) (*authproto.User, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	stmt, err := tx.Prepare(queries.TOPUP)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = stmt.Exec(input.Amount, input.UserId)
+	if err != nil {
+		return nil, tx.Rollback()
+	}
+
+	stmt, err = tx.Prepare(queries.INSERT_TOPUP)
+	if err != nil {
+		return nil, err
+	}
+
+	id := uuid.New().String()
+	dateNow := time.Now().Format(consts.DATE_FORMAT)
+
+	_, err = stmt.Exec(id, dateNow, input.UserId, input.Amount, input.BalanceType)
+	if err != nil {
+		return nil, tx.Rollback()
+	}
+
+	stmt.Close()
+	return &authproto.User{
+		UserId: input.UserId,
+	}, tx.Commit()
 }
 
 func (s *Service) GetAll(ctx context.Context, pagination *authproto.Pagination) (*authproto.UserList, error) {

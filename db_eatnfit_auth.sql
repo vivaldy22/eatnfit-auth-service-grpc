@@ -25,3 +25,11 @@ CREATE TABLE tb_level (
 INSERT INTO tb_level VALUES (NULL, 'Admin', 1),
                             (NULL, 'User', 1),
                             (NULL, 'Driver', 1);
+
+CREATE TABLE tb_balance_history (
+    balance_id VARCHAR(36) PRIMARY KEY NOT NULL,
+    balance_date DATETIME NOT NULL,
+    user_id VARCHAR(36) NOT NULL,
+    amount INT NOT NULL,
+    balance_type INT NOT NULL DEFAULT 1
+);

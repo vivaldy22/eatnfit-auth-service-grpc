@@ -30,6 +30,18 @@ message Level {
   string level_status = 3;
 }
 
+message BalanceHistory {
+  string balhistory_id = 1;
+  string balhistory_date = 2;
+  string user_id = 3;
+  string amount = 4;
+  string balhistory_type = 5;
+}
+
+message BalanceHistoryList {
+  repeated BalanceHistory list = 1;
+}
+
 message UserList {
   repeated User list = 1;
 }
@@ -85,6 +97,12 @@ message Total {
   string total_data = 1;
 }
 
+message TopUpInput {
+  string user_id = 1;
+  string amount = 2;
+  string balance_type = 3;
+}
+
 service UserCRUD {
   rpc GetAll(Pagination) returns (UserList);
   rpc GetTotal(google.protobuf.Empty) returns (Total);
@@ -94,6 +112,8 @@ service UserCRUD {
   rpc CreateByAdmin(User) returns (User);
   rpc Update(UserUpdateRequest) returns (User);
   rpc Delete(ID) returns (google.protobuf.Empty);
+  rpc TopUp(TopUpInput) returns (User);
+  rpc GetBalanceHistory(ID) returns (BalanceHistoryList);
 }
 
 service LevelCRUD {

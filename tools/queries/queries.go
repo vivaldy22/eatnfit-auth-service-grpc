@@ -32,6 +32,10 @@ const (
 	DELETE_USER = `UPDATE tb_user
 					SET user_status = 0
 					WHERE user_id = ?`
-
+	TOPUP = `UPDATE tb_user
+				SET user_balance = user_balance + ?
+				WHERE user_id = ?`
+	INSERT_TOPUP = `INSERT INTO tb_balance_history VALUES (?, ?, ?, ?, ?)`
+	GET_TOPUP_HISTORY_BY_USER_ID = `SELECT * FROM tb_balance_history WHERE user_id = ?`
 
 )
