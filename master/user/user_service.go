@@ -24,7 +24,7 @@ func NewService(db *sql.DB) authproto.UserCRUDServer {
 func (s *Service) GetBalanceHistory(ctx context.Context, id *authproto.ID) (*authproto.BalanceHistoryList, error) {
 	var histories = new(authproto.BalanceHistoryList)
 
-	rows, err := s.db.Query(queries.GET_TOPUP_HISTORY_BY_USER_ID, id.Id)
+	rows, err := s.db.Query(queries.GET_WALLET_HISTORY_BY_USER_ID, id.Id)
 
 	if err != nil {
 		return nil, err
@@ -62,7 +62,42 @@ func (s *Service) TopUp(ctx context.Context, input *authproto.TopUpInput) (*auth
 		return nil, tx.Rollback()
 	}
 
-	stmt, err = tx.Prepare(queries.INSERT_TOPUP)
+	stmt, err = tx.Prepare(queries.INSERT_HISTORY_WALLET)
+	if err != nil {
+		return nil, err
+	}
+
+	id := uuid.New().String()
+	dateNow := time.Now().Format(consts.DATE_FORMAT)
+
+	_, err = stmt.Exec(id, dateNow, input.UserId, input.Amount, input.BalanceType)
+	if err != nil {
+		return nil, tx.Rollback()
+	}
+
+	stmt.Close()
+	return &authproto.User{
+		UserId: input.UserId,
+	}, tx.Commit()
+}
+
+func (s *Service) MinusWallet(ctx context.Context, input *authproto.TopUpInput) (*authproto.User, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	stmt, err := tx.Prepare(queries.MINUS_WALLET)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = stmt.Exec(input.Amount, input.UserId)
+	if err != nil {
+		return nil, tx.Rollback()
+	}
+
+	stmt, err = tx.Prepare(queries.INSERT_HISTORY_WALLET)
 	if err != nil {
 		return nil, err
 	}

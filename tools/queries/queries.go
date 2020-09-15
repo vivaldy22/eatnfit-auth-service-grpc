@@ -35,7 +35,10 @@ const (
 	TOPUP = `UPDATE tb_user
 				SET user_balance = user_balance + ?
 				WHERE user_id = ?`
-	INSERT_TOPUP = `INSERT INTO tb_balance_history VALUES (?, ?, ?, ?, ?)`
-	GET_TOPUP_HISTORY_BY_USER_ID = `SELECT * FROM tb_balance_history WHERE user_id = ?`
+	MINUS_WALLET = `UPDATE tb_user
+					SET user_balance = user_balance - ?
+					WHERE user_id = ?`
+	INSERT_HISTORY_WALLET = `INSERT INTO tb_balance_history VALUES (?, ?, ?, ?, ?)`
+	GET_WALLET_HISTORY_BY_USER_ID = `SELECT * FROM tb_balance_history WHERE user_id = ?`
 
 )
