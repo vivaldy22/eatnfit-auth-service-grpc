@@ -29,6 +29,11 @@ const (
 						user_balance = ?,
 						user_level = ?
 					WHERE user_id = ? AND user_status = 1`
+	EDIT_USER_PROFILE = `UPDATE tb_user
+					SET user_email = ?,
+						user_f_name = ?,
+						user_l_name = ?
+					WHERE user_id = ? AND user_status = 1`
 	DELETE_USER = `UPDATE tb_user
 					SET user_status = 0
 					WHERE user_id = ?`
@@ -38,7 +43,7 @@ const (
 	MINUS_WALLET = `UPDATE tb_user
 					SET user_balance = user_balance - ?
 					WHERE user_id = ?`
-	INSERT_HISTORY_WALLET = `INSERT INTO tb_balance_history VALUES (?, ?, ?, ?, ?)`
+	INSERT_HISTORY_WALLET = `INSERT INTO tb_balance_history VALUES (?, ?, ?, ?, ?, ?)`
 	GET_WALLET_HISTORY_BY_USER_ID = `SELECT * FROM tb_balance_history WHERE user_id = ?`
 
 )

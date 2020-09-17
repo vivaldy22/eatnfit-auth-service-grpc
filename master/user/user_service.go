@@ -33,7 +33,7 @@ func (s *Service) GetBalanceHistory(ctx context.Context, id *authproto.ID) (*aut
 
 	for rows.Next() {
 		var each = new(authproto.BalanceHistory)
-		if err := rows.Scan(&each.BalhistoryId, &each.BalhistoryDate, &each.UserId, &each.Amount, &each.BalhistoryType);
+		if err := rows.Scan(&each.BalhistoryId, &each.BalhistoryDate, &each.UserId, &each.Amount, &each.BalhistoryType, &each.BalhistoryTitle);
 		err != nil {
 			return nil, err
 		}
@@ -70,7 +70,7 @@ func (s *Service) TopUp(ctx context.Context, input *authproto.TopUpInput) (*auth
 	id := uuid.New().String()
 	dateNow := time.Now().Format(consts.DATE_FORMAT)
 
-	_, err = stmt.Exec(id, dateNow, input.UserId, input.Amount, input.BalanceType)
+	_, err = stmt.Exec(id, dateNow, input.UserId, input.Amount, "1", "Top Up")
 	if err != nil {
 		return nil, tx.Rollback()
 	}
@@ -81,7 +81,7 @@ func (s *Service) TopUp(ctx context.Context, input *authproto.TopUpInput) (*auth
 	}, tx.Commit()
 }
 
-func (s *Service) MinusWallet(ctx context.Context, input *authproto.TopUpInput) (*authproto.User, error) {
+func (s *Service) MinusWallet(ctx context.Context, input *authproto.CheckoutInput) (*authproto.User, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return nil, err
@@ -105,7 +105,7 @@ func (s *Service) MinusWallet(ctx context.Context, input *authproto.TopUpInput) 
 	id := uuid.New().String()
 	dateNow := time.Now().Format(consts.DATE_FORMAT)
 
-	_, err = stmt.Exec(id, dateNow, input.UserId, input.Amount, input.BalanceType)
+	_, err = stmt.Exec(id, dateNow, input.UserId, input.Amount, "2", input.Title)
 	if err != nil {
 		return nil, tx.Rollback()
 	}
@@ -241,6 +241,27 @@ func (s *Service) Update(ctx context.Context, request *authproto.UserUpdateReque
 
 	_, err = stmt.Exec(request.User.UserEmail, request.User.UserFName, request.User.UserLName,
 		request.User.UserGender, request.User.UserBalance, request.User.UserLevel, request.Id.Id)
+	if err != nil {
+		return nil, tx.Rollback()
+	}
+
+	stmt.Close()
+	request.User.UserId = request.Id.Id
+	return request.User, tx.Commit()
+}
+
+func (s *Service) EditUserProfile(ctx context.Context, request *authproto.UserUpdateRequest) (*authproto.User, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	stmt, err := tx.Prepare(queries.EDIT_USER_PROFILE)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = stmt.Exec(request.User.UserEmail, request.User.UserFName, request.User.UserLName, request.Id.Id)
 	if err != nil {
 		return nil, tx.Rollback()
 	}
