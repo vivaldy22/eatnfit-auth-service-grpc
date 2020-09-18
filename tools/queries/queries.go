@@ -44,6 +44,6 @@ const (
 					SET user_balance = user_balance - ?
 					WHERE user_id = ?`
 	INSERT_HISTORY_WALLET = `INSERT INTO tb_balance_history VALUES (?, ?, ?, ?, ?, ?)`
-	GET_WALLET_HISTORY_BY_USER_ID = `SELECT * FROM tb_balance_history WHERE user_id = ?`
+	GET_WALLET_HISTORY_BY_USER_ID = `SELECT * FROM tb_balance_history WHERE user_id = ? ORDER BY 2 DESC`
 
 )
