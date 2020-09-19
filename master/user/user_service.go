@@ -70,7 +70,7 @@ func (s *Service) TopUp(ctx context.Context, input *authproto.TopUpInput) (*auth
 	id := uuid.New().String()
 	dateNow := time.Now().Format(consts.DATE_FORMAT)
 
-	_, err = stmt.Exec(id, dateNow, input.UserId, input.Amount, "1", "Top Up")
+	_, err = stmt.Exec(id, dateNow, input.UserId, input.Amount, input.BalanceType, "Top Up")
 	if err != nil {
 		return nil, tx.Rollback()
 	}
@@ -105,7 +105,7 @@ func (s *Service) MinusWallet(ctx context.Context, input *authproto.CheckoutInpu
 	id := uuid.New().String()
 	dateNow := time.Now().Format(consts.DATE_FORMAT)
 
-	_, err = stmt.Exec(id, dateNow, input.UserId, input.Amount, "2", input.Title)
+	_, err = stmt.Exec(id, dateNow, input.UserId, input.Amount, input.BalanceType, input.Title)
 	if err != nil {
 		return nil, tx.Rollback()
 	}
