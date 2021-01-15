@@ -10,7 +10,6 @@ CREATE TABLE tb_user (
      user_f_name VARCHAR(100) NOT NULL,
      user_l_name VARCHAR(100) NOT NULL,
      user_gender INT NOT NULL,
-     user_photo VARCHAR(255) NOT NULL,
      user_balance INT NULL DEFAULT 0,
      user_level INT NOT NULL,
      user_status INT NOT NULL
